@@ -8,6 +8,7 @@ library(sf)
 library(tm)
 library(maps)
 library(shiny)
+library(readr)
 library(gifski)
 library(igraph)
 library(ggraph)
@@ -28,7 +29,10 @@ source.all("modules/", grepstring="\\.R")
 server <- shinyServer(function(input, output, session) {
   
   # Read and preprocess the data
+  unzip("data/tweets_data_v2.csv.zip", exdir = "data")
   tweets <- read.csv("data/tweets_data_v2.csv")
+  # Delete the unzipped file
+  file.remove("data/tweets_data_v2.csv")
   
   # Set reactive values here
   values <- reactiveValues(current_state = "WA", state_tweets = tweets %>% 
