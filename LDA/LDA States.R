@@ -45,7 +45,7 @@ process_batch <- function(batch_data) {
     state_data <- data_tokens %>% filter(state == state)
     if(nrow(state_data) > 0) {
       dtm_data <- state_data %>% cast_dtm(document = tweet_id, term = word, value = n)
-      lda_model <- LDA(dtm_data, k = 5) # Reduced number of topics
+      lda_model <- LDA(dtm_data, k = 10) 
       topic_terms <- tidy(lda_model, matrix = "beta")
       top_terms <- topic_terms %>%
         group_by(topic) %>%
