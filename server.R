@@ -24,6 +24,7 @@ library(wordcloud)
 
 # source modules
 source.all("modules/", grepstring="\\.R")
+source("modules/tweet_analysis_module.R")
 
 # Define server logic required to draw a histogram
 server <- shinyServer(function(input, output, session) {

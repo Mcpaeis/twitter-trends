@@ -5,7 +5,7 @@ tweetAnalysisUI <- function(id) {
     titlePanel("Tweets Analysis"),
     sidebarLayout(
       sidebarPanel(
-        selectInput(ns("state"), "Select a State:", choices = NULL),
+        selectInput(ns("state"), "Select a State:", choices = NULL),  # <-- Set choices to NULL here
         actionButton(ns("plotButton"), "Generate Histogram"),
         uiOutput(ns("categorySelector"))
       ),
@@ -20,17 +20,16 @@ tweetAnalysisUI <- function(id) {
 # Module Server function
 tweetAnalysisServer <- function(id) {
   moduleServer(id, function(input, output, session) {
-    # Read and preprocess the data
-    data_path <- "data/tweets_data_v2.csv"
-    if (!file.exists(data_path)) {
-      unzip("data/tweets_data_v2.csv.zip", exdir = "data")
-    }
-    tweets_df <- read.csv(data_path)
-    # Delete the unzipped file after reading into R
-    file.remove(data_path)
-    
-    # Make the tweets data reactive if it's going to be used reactively elsewhere
-    tweets_df <- reactive({ tweets_df })
+    # Reactive expression for data
+    tweets_df <- reactive({
+      data_path <- "data/tweets_data_v2.csv"
+      if (!file.exists(data_path)) {
+        unzip("data/tweets_data_v2.csv.zip", exdir = "data")
+      }
+      df <- read.csv(data_path)
+      file.remove(data_path)
+      df
+    })
     
     # Update the state choices based on the data
     observe({
@@ -39,7 +38,7 @@ tweetAnalysisServer <- function(id) {
     
     # Static histogram for top 30 states
     output$topStatesPlot <- renderPlot({
-      req(tweets_df()) # make sure tweets_df is available
+      req(tweets_df())  # make sure tweets_df is available
       top_states <- tweets_df() %>%
         group_by(state) %>%
         summarize(total_tweets = n()) %>%
@@ -56,7 +55,7 @@ tweetAnalysisServer <- function(id) {
     
     # Dynamic UI for sentiment selection
     output$categorySelector <- renderUI({
-      req(input$state) # make sure a state is selected
+      req(input$state)  # make sure a state is selected
       state_data <- subset(tweets_df(), state == input$state)
       sentiment_choices <- unique(state_data$sentiment)
       checkboxGroupInput(session$ns("sentiments"), "Select Sentiments:", choices = sentiment_choices, selected = sentiment_choices)
@@ -64,7 +63,7 @@ tweetAnalysisServer <- function(id) {
     
     # Interactive histogram for county-level tweets by sentiment
     output$countyCategoryPlot <- renderPlot({
-      req(input$state, input$sentiments) # make sure these inputs are available
+      req(input$state, input$sentiments)  # make sure these inputs are available
       state_data <- subset(tweets_df(), state == input$state)
       filtered_data <- state_data %>%
         filter(sentiment %in% input$sentiments) %>%
