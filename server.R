@@ -69,7 +69,7 @@ server <- shinyServer(function(input, output, session) {
   
   
   # Histogram
-  output$histogram <- get_histogram_map(hashtags)
+  output$histogram <- get_histogram_map(tweets)
   
   # Watch for click events and update accordingly
   observeEvent(input$states_map_shape_click, {
@@ -89,6 +89,8 @@ server <- shinyServer(function(input, output, session) {
     output$retweets_states_plot = get_line_plot(values$state_tweets, title = paste("Sentiments Overtime - ", clicked_state, sep = ""))
     
   })
+  # Call the module server function and pass the reactive tweets data to it
+  tweetAnalysisServer("tweetAnalysisModule")
   
   observeEvent(input$counties_map_shape_click, {
     clicked_county = input$counties_map_shape_click$id

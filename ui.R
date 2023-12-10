@@ -15,6 +15,7 @@ library(shinydashboardPlus)
 
 # source widgets
 source.all("widgets/", grepstring="\\.R")
+source("modules/tweet_analysis_module.R")
 
 
 # Define UI for the application
@@ -61,11 +62,12 @@ ui <- shinydashboardPlus::dashboardPage(
            counties_map_widget(),
            # Separating box
            vs_box(),
-           #**Add Tweets table analysis widget**
+           #**Add LDA analysis widget**
            tweets_lda_widget(),
            vs_box(),
-           #**Add LDA analysis widget**
+           #**Add Tweets table analysis widget**
            tweets_table_widget(),
+           tweetAnalysisUI("tweetAnalysisModule"),
            vs_box()
            ),
          
