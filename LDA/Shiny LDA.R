@@ -32,7 +32,8 @@ server <- function(input, output) {
       facet_wrap(~ topic, scales = "free") +
       scale_fill_viridis_d() +  # This line adds a color scale
       labs(x = "Term", y = "Probability", title = paste("Top 10 Words in Each Topic -", input$state)) +
-      theme_minimal()
+      theme_minimal() +
+      theme(legend.position = "none")  # This line removes the legend
   })
 }
 
