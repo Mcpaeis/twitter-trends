@@ -30,12 +30,12 @@ tweets_data <- tweets_data %>% filter(!(tweet_id %in% empty_docs))
 dtm_data <- data_tokens %>% cast_dtm(document = tweet_id, term = word, value = n)
 
 # Fit LDA model
-lda_model <- LDA(dtm_data, k = 10)
+lda_model <- LDA(dtm_data, k = 9)
 
 # Extract top terms
 topic_terms <- tidy(lda_model, matrix = "beta")
 
-# Arrange and filter for the top 10 terms per topic
+# Arrange and filter for the top 8 terms per topic
 top_terms <- topic_terms %>%
   group_by(topic) %>%
   top_n(10, beta) %>%
@@ -51,5 +51,5 @@ ggplot(top_terms, aes(x = reorder(term, beta), y = beta)) +
   geom_bar(stat = "identity") +
   coord_flip() +
   facet_wrap(~ topic, scales = "free") +
-  labs(x = "Term", y = "Probability", title = "Top 10 Words in Each Topic") +
+  labs(x = "Term", y = "Probability", title = "Top 9 Words in Each Topic") +
   theme_minimal()
