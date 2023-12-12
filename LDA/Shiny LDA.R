@@ -7,6 +7,11 @@ download.file(url, destfile = "tweets_data_v2.zip")
 unzip("tweets_data_v2.zip", exdir = "data")
 tweets_data <- read.csv("data/tweets_data_v2.csv")
 
+# Extract unique state names
+unique_state <- tweets_data %>%
+  distinct(state) %>%
+  pull(state)
+
 # Extract unique county names
 unique_counties <- tweets_data %>%
   distinct(county) %>%
