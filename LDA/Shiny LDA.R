@@ -2,7 +2,11 @@ library(shiny)
 library(ggplot2)
 library(readr)
 
-tweets_data <- read_csv("C:/Users/Philip/Downloads/tweets_data.csv")
+url <- "https://github.com/Mcpaeis/twitter-trends/raw/master/data/tweets_data_v2.csv.zip"
+download.file(url, destfile = "tweets_data_v2.zip")
+unzip("tweets_data_v2.zip", exdir = "data")
+tweets_data <- read.csv("data/tweets_data_v2.csv")
+
 # Extract unique county names
 unique_counties <- tweets_data %>%
   distinct(county) %>%
