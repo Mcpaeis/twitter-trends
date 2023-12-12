@@ -47,7 +47,9 @@ server <- function(input, output, session) {
     if (input$choice == "All") {
       data_path <- "https://raw.githubusercontent.com/Mcpaeis/twitter-trends/master/LDA/top_terms_df_all.csv"
     } else if (input$choice == "Statewise") {
-      data_path <- paste0("https://raw.githubusercontent.com/Mcpaeis/twitter-trends/master/LDA/", input$state, "_lda.csv")
+      # Replace spaces with '%20' for the URL
+      state_name <- gsub(" ", "%20", input$state)
+      data_path <- paste0("https://raw.githubusercontent.com/Mcpaeis/twitter-trends/master/LDA/", state_name, "_lda.csv")
     } else if (input$choice == "Countywise") {
       # Replace spaces with '%20' for the URL
       county_name <- gsub(" ", "%20", input$county)
