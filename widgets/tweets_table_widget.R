@@ -8,7 +8,24 @@ tweets_table_widget <- function(){
     solidHeader = FALSE, 
     collapsible = TRUE,
     p(
-      # Add your __Output here
+      sidebarLayout(
+        sidebarPanel(
+          selectInput("tabular_state", "Select a State:", choices = NULL),  # <-- Set choices to NULL here
+          actionButton("plotButton", "Generate Histogram"),
+          tags$head(
+            tags$style(HTML("
+            .checkbox label {
+                color: #EEEEEE;
+            }
+        "))
+          ),
+          uiOutput("categorySelector")
+        ),
+        mainPanel(
+          plotOutput("topStatesPlot"),
+          plotOutput("countyCategoryPlot")
+        )
+      )
     )
   )
 }

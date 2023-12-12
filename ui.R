@@ -62,12 +62,11 @@ ui <- shinydashboardPlus::dashboardPage(
            counties_map_widget(),
            # Separating box
            vs_box(),
-           #**Add LDA analysis widget**
-           tweets_lda_widget(),
-           vs_box(),
            #**Add Tweets table analysis widget**
            tweets_table_widget(),
-           tweetAnalysisUI("tweetAnalysisModule"),
+           vs_box(),
+           #**Add LDA analysis widget**
+           tweets_lda_widget(),
            vs_box()
            ),
          

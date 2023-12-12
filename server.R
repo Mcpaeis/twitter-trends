@@ -20,7 +20,6 @@ library(stringr)
 library(ggthemes)
 library(gganimate)
 library(tidyverse)
-library(wordcloud)
 
 # source modules
 source.all("modules/", grepstring="\\.R")
@@ -36,7 +35,9 @@ server <- shinyServer(function(input, output, session) {
   file.remove("data/tweets_data_v2.csv")
   
   # Set reactive values here
-  values <- reactiveValues(current_state = "WA", state_tweets = tweets %>% 
+  values <- reactiveValues(current_state = "WA", 
+                           state_data_tabular = tweets,
+                           state_tweets = tweets %>% 
                              filter(state_code=="WA") %>% 
                              mutate(clean_tweet = sapply(clean_tweet, split_text_into_lines, 30, USE.NAMES = F)) )
   
@@ -75,7 +76,7 @@ server <- shinyServer(function(input, output, session) {
   # Watch for click events and update accordingly
   observeEvent(input$states_map_shape_click, {
     clicked_state = input$states_map_shape_click$id
-
+    
     # Select all counties corresponding to the state
     selected_counties = counties_sf[counties_sf$STATEFP == states_sf$STATEFP[states_sf$STUSPS==clicked_state], ]
     # Update the counties map to the current state
@@ -90,8 +91,43 @@ server <- shinyServer(function(input, output, session) {
     output$retweets_states_plot = get_line_plot(values$state_tweets, title = paste("Sentiments Overtime - ", clicked_state, sep = ""))
     
   })
-  # Call the module server function and pass the reactive tweets data to it
-  tweetAnalysisServer("tweetAnalysisModule")
+  
+  ## The tweet tabular analysis
+  # All states histogram
+  top_states = tweets %>% group_by(state) %>% summarize(total_tweets = n()) %>% arrange(desc(total_tweets)) %>% head(30)
+  output$topStatesPlot  = get_state_most_tweets_histogram(top_states)
+  observe({
+    updateSelectInput(session, "tabular_state", choices = unique(tweets$state))
+  })
+  # Add thec checkbox
+  #chk_state = reactive({input$tabular_state})
+  #state_data = subset(tweets, state == chk_state)
+  sentiment_choices = unique(tweets$sentiment)
+  output$categorySelector = get_sentiment_checkbox(sentiment_choices)
+  
+  output$countyCategoryPlot = get_tweet_analysis_histogram(tweets %>% group_by(county, sentiment) %>% summarize(total_tweets = n()), "All")
+  
+  # Listen to the state change and sentiment change
+  observeEvent(input$tabular_state, {
+    # Code to execute when 'select' changes
+    state_data_tabular =  subset(tweets, state == input$tabular_state)
+    state_data_tabular_ = state_data_tabular %>% group_by(county, sentiment) %>% summarize(total_tweets = n())
+    output$countyCategoryPlot = get_tweet_analysis_histogram(state_data_tabular_, input$tabular_state)
+    values$state_data_tabular = state_data_tabular
+  })
+  
+  observeEvent(input$sentiments, {
+    # Code to execute when 'select' changes
+    filtered_data = values$state_data_tabular %>% 
+      filter(sentiment %in% input$sentiments) %>% group_by(county, sentiment) %>% summarize(total_tweets = n())
+    output$countyCategoryPlot = get_tweet_analysis_histogram(filtered_data, unique((values$state_data_tabular)$state))
+  })
+  # Tweets by sentiment
+  #filtered_data = state_data %>% filter(sentiment %in% input$sentiments) %>% group_by(county, sentiment) %>% summarize(total_tweets = n())
+  #output$countyCategoryPlot = get_tweet_analysis_histogram(filtered_data)
+  
+  #tweetAnalysisServer("tweetAnalysisModule")
+  
   
   observeEvent(input$counties_map_shape_click, {
     clicked_county = input$counties_map_shape_click$id
@@ -106,6 +142,40 @@ server <- shinyServer(function(input, output, session) {
       output$polarity_counties_plot = get_line_text_plot(county_tweets, title = "Tweets Polarity - All Counties")
     }
     
+  })
+  
+  # LDA Analysis
+  output$ldaPlot <- renderPlot({
+    if (input$state_selected == "All") {
+      data_path <- "https://raw.githubusercontent.com/Mcpaeis/twitter-trends/master/LDA/top_terms_df_all.csv"
+    } else {
+      data_path <- paste0("https://raw.githubusercontent.com/Mcpaeis/twitter-trends/master/LDA/", input$state_selected, "_lda.csv")
+    }
+    
+    top_terms <- read_csv(data_path)
+    top_terms$topic <- as.factor(top_terms$topic)
+    
+    ggplot(top_terms, aes(x = reorder(term, beta), y = beta, fill = topic)) +
+      geom_bar(stat = "identity") +
+      coord_flip() +
+      facet_wrap(~ topic, scales = "free") +
+      scale_fill_viridis_d() +  # This line adds a color scale
+      labs(x = "Term", y = "Probability", title = paste("Top 10 Words in Each Topic -", input$state_selected)) +
+      theme_minimal() +
+      theme(
+        text = element_text(color = "#EEEEEE"),
+        title = element_text(color = "#EEEEEE"), 
+        axis.ticks = element_line(colour = "#EEEEEE"), 
+        plot.title = element_text(hjust = 0.5),
+        panel.background = element_rect(fill = NA),
+        plot.background = element_rect(fill = "#111111"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.background = element_blank(),
+        legend.key = element_blank(),
+        axis.text.x = element_text(color="#EEEEEE"),
+        axis.text.y = element_text(color="#EEEEEE"),
+        legend.position = "none")  # This line removes the legend
   })
   
 })

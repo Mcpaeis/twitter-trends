@@ -2,11 +2,18 @@
 tweetAnalysisUI <- function(id) {
   ns <- NS(id)
   tagList(
-    titlePanel("Tweets Analysis"),
+    titlePanel(""),
     sidebarLayout(
       sidebarPanel(
         selectInput(ns("state"), "Select a State:", choices = NULL),  # <-- Set choices to NULL here
         actionButton(ns("plotButton"), "Generate Histogram"),
+        tags$head(
+          tags$style(HTML("
+            .checkbox label {
+                color: green;
+            }
+        "))
+        ),
         uiOutput(ns("categorySelector"))
       ),
       mainPanel(
@@ -49,8 +56,21 @@ tweetAnalysisServer <- function(id) {
         geom_bar(stat = "identity", fill = "blue") +
         labs(title = "Top 30 States with Most Tweets",
              x = "State",
-             y = "Total Tweets") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+             y = "Total Tweets") + theme_bw() + 
+        theme(
+          text = element_text(color = "#EEEEEE"),
+          title = element_text(color = "#EEEEEE"), 
+          plot.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill = NA),
+          plot.background = element_rect(fill = "#111111"),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.background = element_blank(),
+          axis.ticks = element_line(colour = "#EEEEEE"), 
+          legend.key = element_blank(),
+          axis.text.x = element_text(angle = 45, hjust = 1, color="#EEEEEE"),
+          axis.text.y = element_text(color="#EEEEEE")
+          )
     })
     
     # Dynamic UI for sentiment selection
@@ -58,7 +78,8 @@ tweetAnalysisServer <- function(id) {
       req(input$state)  # make sure a state is selected
       state_data <- subset(tweets_df(), state == input$state)
       sentiment_choices <- unique(state_data$sentiment)
-      checkboxGroupInput(session$ns("sentiments"), "Select Sentiments:", choices = sentiment_choices, selected = sentiment_choices)
+      checkboxGroupInput(
+        session$ns("sentiments"), "Select Sentiments:", choices = sentiment_choices, selected = sentiment_choices)
     })
     
     # Interactive histogram for county-level tweets by sentiment
@@ -74,8 +95,21 @@ tweetAnalysisServer <- function(id) {
         geom_bar(stat = "identity") +
         labs(title = paste("Tweets by Sentiment in", input$state),
              x = "County",
-             y = "Total Tweets") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+             y = "Total Tweets") + theme_bw() + 
+        theme(
+          text = element_text(color = "#EEEEEE"),
+          title = element_text(color = "#EEEEEE"), 
+          axis.ticks = element_line(colour = "#EEEEEE"), 
+          plot.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill = NA),
+          plot.background = element_rect(fill = "#111111"),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.background = element_blank(),
+          legend.key = element_blank(),
+          axis.text.x = element_text(angle = 45, hjust = 1, color="#EEEEEE"),
+          axis.text.y = element_text(color="#EEEEEE")
+          )
     })
   })
 }

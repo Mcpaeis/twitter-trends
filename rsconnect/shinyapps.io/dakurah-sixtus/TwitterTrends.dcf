@@ -5,7 +5,7 @@ account: dakurah-sixtus
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 10751035
-bundleId: 8024436
+bundleId: 8037700
 url: https://macovid.shinyapps.io/TwitterTrends/
 version: 1
 asMultiple: FALSE
