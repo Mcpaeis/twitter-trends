@@ -36,7 +36,7 @@ ui <- shinydashboardPlus::dashboardPage(
 
     #dashboard body starts here
     dashboardBody(
-      ### changing theme
+      # changing theme
       shinyDashboardThemes(
         theme = "blue_gradient"
       ),

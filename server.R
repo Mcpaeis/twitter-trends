@@ -122,11 +122,6 @@ server <- shinyServer(function(input, output, session) {
       filter(sentiment %in% input$sentiments) %>% group_by(county, sentiment) %>% summarize(total_tweets = n())
     output$countyCategoryPlot = get_tweet_analysis_histogram(filtered_data, unique((values$state_data_tabular)$state))
   })
-  # Tweets by sentiment
-  #filtered_data = state_data %>% filter(sentiment %in% input$sentiments) %>% group_by(county, sentiment) %>% summarize(total_tweets = n())
-  #output$countyCategoryPlot = get_tweet_analysis_histogram(filtered_data)
-  
-  #tweetAnalysisServer("tweetAnalysisModule")
   
   
   observeEvent(input$counties_map_shape_click, {
@@ -175,7 +170,7 @@ server <- shinyServer(function(input, output, session) {
         legend.key = element_blank(),
         axis.text.x = element_text(color="#EEEEEE"),
         axis.text.y = element_text(color="#EEEEEE"),
-        legend.position = "none")  # This line removes the legend
+        legend.position = "none")
   })
   
 })
